@@ -1,0 +1,137 @@
+1. 📸 Computer Vision
+Uso: Detección de objetos, reconocimiento facial, identificación de actividad sospechosa.
+
+Técnicas / Modelos:
+YOLOv5 / YOLOv8: detección rápida en tiempo real
+
+OpenCV + Haar cascades: detección facial rápida
+
+SSD + MobileNet: ideal para dispositivos edge
+
+DeepSORT: tracking de personas
+
+Casos de uso:
+Reconocimiento de personas no autorizadas
+
+Conteo de personas/vehículos en zona
+
+Análisis de movimiento
+
+Integración:
+AWS Panorama (visión en edge)
+
+Amazon Rekognition (detección de rostros, armas, etc.)
+
+2. 👁️ Autenticación Biométrica
+Uso: Control de acceso por rostro, huella, iris o voz.
+
+Técnicas:
+FaceNet / Dlib: Embeddings faciales
+
+MFCC + SVM: Reconocimiento de voz
+
+CNN + Fingerprint classifier: Huellas dactilares
+
+Casos de uso:
+Validación de identidad de personal
+
+Control de accesos a zonas críticas
+
+Registro de asistencia
+
+Integración:
+AWS Rekognition + Lambda
+
+Dispositivos IoT que capturen y envíen biometría
+
+3. 🧬 Redes Generativas Adversarias (GANs)
+Uso: Generación de datos sintéticos para entrenamiento, mejora de imágenes de cámaras, restauración.
+
+Técnicas:
+DCGAN / CycleGAN: generar rostros, mejorar resolución
+
+DeepFake detection: detectar manipulación de video
+
+Super-Resolution GAN (SRGAN): mejorar calidad de imagen de cámaras
+
+Casos de uso:
+Entrenamiento con datos artificiales
+
+Detección de falsificación de video
+
+Mejora de video nocturno o borroso
+
+4. 📚 Modelos NLP: BERT, GPT, etc.
+Uso: Análisis de textos de reportes, generación automática de alertas, clasificación de mensajes o logs.
+
+Técnicas:
+BERT / RoBERTa: clasificación de incidentes en texto
+
+GPT (fine-tuned): redacción automática de informes
+
+T5: traducción, resumen y extracción de entidades
+
+Casos de uso:
+Análisis de reportes de seguridad escritos
+
+Extracción de entidades (placas, nombres, ubicaciones)
+
+Generación automática de descripciones en base a eventos
+
+Integración:
+AWS Comprehend (análisis de texto)
+
+SageMaker con BERT fine-tuned
+
+5. 🌳 Árboles de decisión / Random Forest / XGBoost
+Uso: Predicción de eventos, clasificación de riesgos, reglas basadas en características.
+
+Técnicas:
+Random Forest: clasificación de zonas con más alertas
+
+XGBoost: predicción de fallas de hardware o ataques
+
+Decision Trees: fácil interpretación por operadores
+
+Casos de uso:
+¿Dónde es más probable que ocurra un incidente?
+
+¿Qué sensores fallarán según su historial?
+
+Predicción de saturación de cámaras o almacenamiento
+
+Integración:
+Entrenamiento en SageMaker
+
+Inferencia con Lambda / Batch
+
+6. 🔍 Clustering (no supervisado)
+Uso: Detección de patrones inusuales, agrupamiento de eventos, compresión.
+
+Técnicas:
+K-Means: agrupación de actividad por zona
+
+DBSCAN: detección de eventos atípicos
+
+Autoencoders + PCA: detección de anomalías
+
+Casos de uso:
+Agrupar incidentes similares (tiempo, lugar)
+
+Detección de comportamientos anómalos
+
+Análisis exploratorio de sensores
+
+Integración:
+SageMaker notebooks
+
+Athena para análisis sobre logs ya procesados
+
+🔗 ¿Cómo se conecta todo esto en tu sistema ETL?
+Técnica	¿Dónde se aplica?	Conectado a...
+Visión por computador	ETL en AWS Lambda + S3	Imágenes de vigilancia
+Biométrico	Lambda + Rekognition	Cámaras de acceso
+GANs	Entrenamiento offline en SageMaker	Entrenamiento o video mejorado
+NLP con BERT	Glue + SageMaker	Logs, reportes, comunicaciones
+Árboles de decisión	Glue Job o Lambda	Predicción de incidentes
+Clustering	Glue o Athena	Análisis exploratorio de eventos
