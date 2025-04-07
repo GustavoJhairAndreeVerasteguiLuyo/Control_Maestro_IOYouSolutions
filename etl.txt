@@ -1,0 +1,89 @@
+[1] Fuentes de datos (cámaras, COBOL logs, sensores)
+         │
+         ▼
+[2] Amazon Kinesis / AWS IoT Core
+         │
+         ▼
+[3] AWS Lambda (Procesamiento en tiempo real o batch)
+         │
+         ▼
+[4] Amazon S3 (Data Lake crudo)
+         │
+         ▼
+[5] AWS Glue (ETL, catalogación y transformación)
+         │
+         ▼
+[6] Amazon Redshift / Athena (consulta)
+         │
+         ▼
+[7] Amazon QuickSight / Dashboard
+----------------------------------------------
+[1] 🛰️ Fuentes de datos
+Cámaras IP → envían metadata a través de MQTT, RTSP, etc.
+
+Logs COBOL → exportados por FTP/SFTP a un bucket S3.
+
+Sensores → publican eventos vía IoT Core o API REST.
+----------------------------------------------
+[2] 🔁 Amazon Kinesis o AWS IoT Core
+Reciben el stream de datos en tiempo real.
+
+Se requiere usar Kinesis Firehose para volcar directamente a S3.
+----------------------------------------------
+[3] 🧠 AWS Lambda
+Realiza limpieza, normalización y tagging de eventos.
+
+def lambda_handler(event, context):
+    record = event['Records'][0]
+    data = json.loads(base64.b64decode(record['kinesis']['data']))
+    # transformar y guardar en S3 limpio
+----------------------------------------------
+[4] 🗃️ Amazon S3 (Data Lake)
+3 zonas de almacenamiento:
+
+s3://vigilancia/raw/
+
+s3://vigilancia/processed/
+
+s3://vigilancia/analytics/
+----------------------------------------------
+
+[5] 🔧 AWS Glue
+Crear jobs ETL programados que:
+
+Toman datos de raw
+
+Transforman (ej. agrupar por hora, ciudad, evento)
+
+Cargan en analytics o Redshift
+
+Catálogo de datos en Glue para usar con Athena o Lake Formation
+----------------------------------------------
+
+[6] 📦 Amazon Redshift / Athena
+Redshift si necesitas procesamiento masivo tipo DWH
+
+Athena si prefieres consultar directamente sobre S3 con SQL
+----------------------------------------------
+
+[7] 📊 Amazon QuickSight
+Crear paneles:
+
+Cámaras activas por zona
+
+Eventos por hora del día
+
+Alertas frecuentes
+
+Logs COBOL integrados en timelines
+-----------------------------------------------
+📦 ¿Qué servicios deberías provisionar?
+Servicio	                           Propósito
+S3	                                   Data Lake
+Glue	                               Catálogo y ETL
+Athena	                               SQL sobre S3
+Redshift	                           DWH
+QuickSight	                           Dashboard
+Kinesis	                               Ingesta en tiempo real
+Lambda	                               Preprocesamiento / Orquestación
+IoT Core	                           Lectura directa de sensores físicos
