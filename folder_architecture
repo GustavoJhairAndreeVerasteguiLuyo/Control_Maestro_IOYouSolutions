@@ -1,0 +1,11 @@
+src/
+│
+├── api/
+│   └── system.js
+├── hooks/
+│   └── useBootSystem.js
+├── components/
+│   └── Spinner.js
+│
+├── App.js
+└── main.jsx
