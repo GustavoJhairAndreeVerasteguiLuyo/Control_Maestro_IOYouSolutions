@@ -1,36 +1,76 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/boot", async context =>
+var logger = app.Logger;
+
+// Endpoint generalizado: puedes pasar el nombre del programa COBOL
+app.MapGet("/boot/{program}", async (HttpContext context, string program) =>
 {
-    // Simula ejecución COBOL y devuelve su salida
-    var output = await RunCobolBootProgram();
-    await context.Response.WriteAsync(output);
+    try
+    {
+        var output = await RunCobolProgramAsync(program);
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            success = true,
+            program,
+            output
+        }));
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error ejecutando programa COBOL");
+
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            success = false,
+            error = ex.Message
+        }));
+    }
 });
 
 app.Run();
 
-async Task<string> RunCobolBootProgram()
+/// <summary>
+/// Ejecuta un programa COBOL compilado con GnuCOBOL.
+/// </summary>
+async Task<string> RunCobolProgramAsync(string programName)
 {
-    // Aquí podrías ejecutar un binario compilado por GnuCOBOL, por ejemplo.
+    if (string.IsNullOrWhiteSpace(programName))
+        throw new ArgumentException("Nombre de programa no válido");
+
     var process = new Process
     {
         StartInfo = new ProcessStartInfo
         {
             FileName = "cobcrun",
-            Arguments = "seguridad_boot",
+            Arguments = programName,
             RedirectStandardOutput = true,
+            RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         }
     };
 
     process.Start();
-    string result = await process.StandardOutput.ReadToEndAsync();
+
+    // Lee ambas salidas en paralelo
+    var outputTask = process.StandardOutput.ReadToEndAsync();
+    var errorTask = process.StandardError.ReadToEndAsync();
+
+    await Task.WhenAll(outputTask, errorTask);
     process.WaitForExit();
-    return result;
+
+    if (process.ExitCode != 0)
+        throw new Exception($"Programa '{programName}' terminó con código {process.ExitCode}: {errorTask.Result}");
+
+    return outputTask.Result;
 }
