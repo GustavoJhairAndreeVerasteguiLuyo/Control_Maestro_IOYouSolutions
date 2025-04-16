@@ -1,33 +1,54 @@
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 var logger = app.Logger;
 
-// Endpoint generalizado: puedes pasar el nombre del programa COBOL
+// Ruta de programas COBOL (por seguridad, ruta fija)
+string cobolProgramPath = "/usr/local/bin/";
+
 app.MapGet("/boot/{program}", async (HttpContext context, string program) =>
 {
+    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
     try
     {
-        var output = await RunCobolProgramAsync(program);
+        if (string.IsNullOrWhiteSpace(program) || program.Contains(".."))
+        {
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsync("Programa inválido");
+            return;
+        }
+
+        var output = await RunCobolProgramAsync(program, cts.Token);
+
         context.Response.ContentType = "application/json";
         await context.Response.WriteAsync(JsonSerializer.Serialize(new
         {
             success = true,
             program,
+            timestamp = DateTime.UtcNow,
             output
         }));
+    }
+    catch (OperationCanceledException)
+    {
+        logger.LogWarning("Timeout ejecutando COBOL: {Program}", program);
+        context.Response.StatusCode = 504;
+        await context.Response.WriteAsync("Timeout ejecutando COBOL");
     }
     catch (Exception ex)
     {
         logger.LogError(ex, "Error ejecutando programa COBOL");
-
         context.Response.StatusCode = 500;
         await context.Response.WriteAsync(JsonSerializer.Serialize(new
         {
@@ -37,41 +58,48 @@ app.MapGet("/boot/{program}", async (HttpContext context, string program) =>
     }
 });
 
+// Nuevo endpoint para ver logs del sistema
+app.MapGet("/logs", async context =>
+{
+    var logFile = "log.txt";
+    if (File.Exists(logFile))
+    {
+        var logs = await File.ReadAllTextAsync(logFile);
+        context.Response.ContentType = "text/plain";
+        await context.Response.WriteAsync(logs);
+    }
+    else
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync("Log no encontrado");
+    }
+});
+
 app.Run();
 
-/// <summary>
-/// Ejecuta un programa COBOL compilado con GnuCOBOL.
-/// </summary>
-async Task<string> RunCobolProgramAsync(string programName)
+async Task<string> RunCobolProgramAsync(string program, CancellationToken token)
 {
-    if (string.IsNullOrWhiteSpace(programName))
-        throw new ArgumentException("Nombre de programa no válido");
-
-    var process = new Process
+    var startInfo = new ProcessStartInfo
     {
-        StartInfo = new ProcessStartInfo
-        {
-            FileName = "cobcrun",
-            Arguments = programName,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        }
+        FileName = $"{cobolProgramPath}{program}",
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        UseShellExecute = false,
+        CreateNoWindow = true
     };
 
+    using var process = new Process { StartInfo = startInfo };
     process.Start();
 
-    // Lee ambas salidas en paralelo
-    var outputTask = process.StandardOutput.ReadToEndAsync();
-    var errorTask = process.StandardError.ReadToEndAsync();
+    string output = await process.StandardOutput.ReadToEndAsync();
+    string error = await process.StandardError.ReadToEndAsync();
 
-    await Task.WhenAll(outputTask, errorTask);
-    process.WaitForExit();
+    await process.WaitForExitAsync(token);
 
-    if (process.ExitCode != 0)
-        throw new Exception($"Programa '{programName}' terminó con código {process.ExitCode}: {errorTask.Result}");
+    if (!string.IsNullOrEmpty(error))
+    {
+        throw new Exception($"Error: {error}");
+    }
 
-    return outputTask.Result;
+    return output.Trim();
 }
-
