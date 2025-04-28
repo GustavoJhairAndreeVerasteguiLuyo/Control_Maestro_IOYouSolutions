@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estado de Sensores - Sistema de Videovigilancia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #sensorStatus {
+      background: #e7f3fe;
+      border-left: 5px solid #2196f3;
+      padding: 1rem 1.5rem;
+      border-radius: 6px;
+      max-width: 600px;
+      width: 100%;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .sensor-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 1rem;
+    }
+
+    .sensor-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .status-ok {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-warning {
+      color: orange;
+      font-weight: bold;
+    }
+
+    .status-critical {
+      color: red;
+      font-weight: bold;
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+
+  <section id="sensorStatus">
+    <h2>Estado de Sensores</h2>
+    <ul id="sensorList" class="sensor-list"></ul>
+  </section>
+
+  <a href="dashboard.html#statistics" class="back-btn">← Regresar al Dashboard</a>
+
+  <script>
+    const sensors = [
+      { name: "Sensor de humo", status: "Normal", statusClass: "status-ok" },
+      { name: "Sensor de gas", status: "Alta concentración", statusClass: "status-warning" },
+      { name: "Sensor de temperatura", status: "22°C", statusClass: "status-ok" }
+    ];
+
+    const sensorList = document.getElementById("sensorList");
+    const fragment = document.createDocumentFragment();
+
+    sensors.forEach(sensor => {
+      const li = document.createElement("li");
+      li.classList.add("sensor-item");
+      li.innerHTML = `${sensor.name}: <span class="${sensor.statusClass}">${sensor.status}</span>`;
+      fragment.appendChild(li);
+    });
+
+    sensorList.appendChild(fragment);
+  </script>
+
+</body>
+</html>
