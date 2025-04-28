@@ -1,0 +1,78 @@
+<section id="mapSection">
+  <h2>Ubicación de Cámaras y Sensores</h2>
+  <div id="mapContainer" class="map-placeholder loading">
+    <span>Cargando mapa interactivo...</span>
+  </div>
+</section>
+
+<style>
+  #mapSection {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: #f0f4f8;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  #mapSection h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+
+  .map-placeholder {
+    background-color: #cce5ff;
+    border: 3px dashed #007bff;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #007bff;
+    font-size: 1.4rem;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Mientras carga */
+  .loading {
+    animation: mapLoadingAnimation 2s infinite;
+  }
+
+  /* Cuando ya está cargado */
+  .loaded {
+    background-color: #ffffff;
+    border: 3px solid #007bff;
+    color: #0056b3;
+    animation: none;
+  }
+
+  /* Animación de "pulso" de carga */
+  @keyframes mapLoadingAnimation {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const mapContainer = document.getElementById('mapContainer');
+
+    setTimeout(() => {
+      mapContainer.classList.remove('loading');
+      mapContainer.classList.add('loaded');
+      mapContainer.innerHTML = `<strong>Mapa interactivo cargado exitosamente ✅</strong>`;
+      // Aquí podrías insertar el mapa real si quieres.
+    }, 3000); // Espera de 3 segundos para "simular" carga
+  });
+</script>
