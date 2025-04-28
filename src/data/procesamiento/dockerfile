@@ -1,0 +1,8 @@
+# Dockerfile
+FROM nvcr.io/nvidia/deepstream:6.4-triton
+
+WORKDIR /opt/nvidia/deepstream
+
+COPY ./my_deepstream_app /opt/nvidia/deepstream/my_deepstream_app
+
+CMD ["deepstream-app", "-c", "/opt/nvidia/deepstream/my_deepstream_app/config.txt"]
