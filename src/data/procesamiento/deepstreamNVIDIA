@@ -1,0 +1,26 @@
+# deepstream-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deepstream-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deepstream
+  template:
+    metadata:
+      labels:
+        app: deepstream
+    spec:
+      containers:
+      - name: deepstream
+        image: nvcr.io/nvidia/deepstream:6.4-triton  # Imagen de DeepStream oficial
+        resources:
+          limits:
+            nvidia.com/gpu: 1  # Solicita acceso a una GPU
+        env:
+        - name: RTSP_STREAM_URL
+          value: "rtsp://mi_camara_ip/stream"
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
