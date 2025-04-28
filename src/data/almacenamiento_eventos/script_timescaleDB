@@ -1,0 +1,39 @@
+# insert_event.py
+
+import psycopg2
+from datetime import datetime
+
+# Configuración de la base de datos
+conn = psycopg2.connect(
+    dbname="events",
+    user="admin",
+    password="admin123",
+    host="timescaledb",
+    port="5432"
+)
+
+cursor = conn.cursor()
+
+# Crear tabla si no existe
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS security_events (
+    id SERIAL PRIMARY KEY,
+    camera_id VARCHAR(50),
+    event_type VARCHAR(100),
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    metadata JSONB
+);
+""")
+conn.commit()
+
+# Insertar un evento simulado
+cursor.execute("""
+INSERT INTO security_events (camera_id, event_type, metadata)
+VALUES (%s, %s, %s)
+""", ("camara_001", "persona_detectada", '{"confidence": 0.98, "zone": "zona_A"}'))
+
+conn.commit()
+cursor.close()
+conn.close()
+
+print("Evento insertado correctamente.")
