@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vigilancia Inteligente Mejorada</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #eef2f7;
+      margin: 0;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: #111827;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .camera-container {
+      position: relative;
+      width: 90%;
+      max-width: 720px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    video, canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .controls {
+      margin: 1.5rem 0;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .controls button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .controls button:hover {
+      background: #2563eb;
+    }
+
+    .status {
+      margin: 1rem;
+      font-weight: bold;
+      color: #374151;
+      text-align: center;
+    }
+
+    .alert-feed {
+      width: 90%;
+      max-width: 720px;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-item {
+      background: #fff7d6;
+      margin-top: 0.5rem;
+      padding: 0.8rem;
+      border-left: 5px solid #f59e0b;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎥 Vigilancia Inteligente en Tiempo Real</h1>
+
+  <div class="camera-container">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="overlay"></canvas>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Iniciar Monitoreo</button>
+    <button id="stopBtn">Detener Monitoreo</button>
+  </div>
+
+  <div class="status" id="statusText">Estado: Inactivo</div>
+
+  <div class="alert-feed">
+    <h3>Eventos Registrados:</h3>
+    <div id="alerts"></div>
+  </div>
+
+  <audio id="alertSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const alerts = document.getElementById('alerts');
+    const statusText = document.getElementById('statusText');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const alertSound = document.getElementById('alertSound');
+
+    let monitoring = false;
+    let intervalId = null;
+
+    // Inicia la cámara
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+        video.srcObject = stream;
+      } catch (err) {
+        handleError('Error al acceder a la cámara.', err);
+      }
+    }
+
+    // Carga los modelos de detección facial
+    async function loadModels() {
+      const modelPath = 'https://cdn.jsdelivr.net/npm/face-api.js/models';
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
+        await faceapi.nets.faceExpressionNet.loadFromUri(modelPath);
+        console.log('Modelos de FaceAPI cargados.');
+      } catch (err) {
+        handleError('Error al cargar los modelos de FaceAPI.', err);
+      }
+    }
+
+    // Configura la resolución del canvas cuando el video carga
+    video.addEventListener('loadeddata', () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    });
+
+    // Dibuja las detecciones en el canvas
+    function drawDetections(detections) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      detections.forEach(detection => {
+        const { x, y, width, height } = detection.detection.box;
+        ctx.strokeStyle = '#00BFFF';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, width, height);
+
+        const bestEmotion = getBestEmotion(detection.expressions);
+        ctx.fillStyle = '#00BFFF';
+        ctx.font = '18px Segoe UI';
+        ctx.fillText(bestEmotion, x, y > 20 ? y - 5 : y + 20);
+      });
+    }
+
+    // Obtiene la mejor emoción detectada
+    function getBestEmotion(expressions) {
+      let best = { expression: '', probability: 0 };
+      for (const [expr, prob] of Object.entries(expressions)) {
+        if (prob > best.probability) {
+          best = { expression: expr, probability: prob };
+        }
+      }
+      return best.expression.charAt(0).toUpperCase() + best.expression.slice(1);
+    }
+
+    // Registra eventos y muestra las alertas
+    function logEvent(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'alert-item';
+      div.innerHTML = `<strong>${message}</strong> - ${timestamp}`;
+      alerts.prepend(div);
+    }
+
+    // Reproduce sonido de alerta
+    function playSound() {
+      alertSound.play();
+    }
+
+    // Monitorea los rostros detectados
+    async function monitorFaces() {
+      const options = new faceapi.TinyFaceDetectorOptions();
+      const detections = await faceapi.detectAllFaces(video, options).withFaceExpressions();
+
+      if (detections.length > 0) {
+        drawDetections(detections);
+        detections.forEach(detection => {
+          const emotion = getBestEmotion(detection.expressions);
+          logEvent(`Rostro detectado - ${emotion}`);
+          playSound();
+        });
+      } else {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // Manejo de errores
+    function handleError(message, error) {
+      console.error(message, error);
+      alert(`${message} Intenta nuevamente.`);
+    }
+
+    // Inicia y detiene el monitoreo
+    startBtn.addEventListener('click', () => {
+      if (!monitoring) {
+        monitoring = true;
+        statusText.textContent = 'Estado: Monitoreando...';
+        intervalId = setInterval(monitorFaces, 1000); // Actualización cada segundo
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      monitoring = false;
+      clearInterval(intervalId);
+      statusText.textContent = 'Estado: Inactivo';
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // Inicia la cámara y carga los modelos
+    async function init() {
+      await loadModels();
+      await startCamera();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
