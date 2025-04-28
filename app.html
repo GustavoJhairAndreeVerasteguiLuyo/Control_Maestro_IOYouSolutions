@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alarma Inteligente Perú</title>
+
+  <!-- AOS: Animate On Scroll -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #1e40af;
+      --light: #f3f4f6;
+      --dark: #111827;
+      --white: #ffffff;
+      --gray: #6b7280;
+      --radius: 12px;
+      --popular: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      scroll-behavior: smooth;
+    }
+
+    header {
+      background: var(--primary);
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: var(--white);
+      margin-left: 1rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+
+    nav a:hover {
+      opacity: 0.8;
+    }
+
+    .banner {
+      background: linear-gradient(to right, #1e3a8a, #2563eb);
+      color: var(--white);
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .banner h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .banner p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .banner button {
+      background: var(--white);
+      color: var(--primary);
+      border: none;
+      padding: 0.8rem 1.6rem;
+      font-size: 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+
+    .banner button:hover {
+      background: #e5e7eb;
+    }
+
+    .countdown {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    section {
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      max-width: 800px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .plan {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+
+    .plan:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+    }
+
+    .plan h3 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan .popular {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--popular);
+      color: #fff;
+      padding: 0.3rem 0.7rem;
+      border-bottom-left-radius: var(--radius);
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .plan ul {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+      text-align: left;
+    }
+
+    .plan ul li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.95rem;
+    }
+
+    .plan button {
+      margin-top: 1rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .plan button:hover {
+      background: var(--secondary);
+    }
+
+    footer {
+      background: var(--secondary);
+      color: var(--white);
+      text-align: center;
+      padding: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        margin-top: 0.5rem;
+      }
+
+      .banner h1 {
+        font-size: 2rem;
+      }
+
+      .plans {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">Alarma Inteligente</div>
+    <nav>
+      <a href="dashboard.html">Iniciar sesión</a>
+      <a href="#inicio">Inicio</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#planes">Planes</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </header>
+
+  <section id="contacto">
+    <h2 data-aos="fade-up">Contáctanos</h2>
+    <p data-aos="fade-up" data-aos-delay="100">¿Tienes dudas? Llama al <strong>0800 2 0808</strong> o escribe a <strong>contacto@alarmaperu.pe</strong></p>
+
+    <form id="contactForm" data-aos="fade-up" data-aos-delay="200" style="max-width: 600px; margin: 2rem auto; text-align: left;">
+      <label for="nombre">Nombre:</label><br />
+      <input type="text" id="nombre" name="nombre" required style="width: 100%; padding: 0.7rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #ccc;"><br />
+
+      <label for="correo">Correo electrónico:</label><br />
+      <input type="email" id="correo" name="correo" required style="width: 100%; padding: 0.7rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #ccc;"><br />
+
+      <label for="mensaje">Mensaje:</label><br />
+      <textarea id="mensaje" name="mensaje" rows="4" required style="width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #ccc;"></textarea><br />
+
+      <button type="submit" style="margin-top: 1rem; background: var(--primary); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; cursor: pointer;">Enviar</button>
+    </form>
+  </section>
+
+  <section class="banner" id="inicio">
+    <h1>Protege tu hogar con tecnología avanzada</h1>
+    <p>Instalación rápida, sensores inteligentes y monitoreo 24/7</p>
+    <button onclick="document.getElementById('contacto').scrollIntoView({behavior: 'smooth'})">Solicita tu cotización</button>
+    <div class="countdown" id="countdown"></div>
+  </section>
+
+  <section class="services" id="servicios" data-aos="fade-up">
+    <h2>Servicios de Seguridad</h2>
+    <p>Instalación de alarmas inteligentes, sensores de movimiento, cámaras de videovigilancia, monitoreo en tiempo real, y alertas automáticas por móvil o correo.</p>
+  </section>
+
+  <section id="planes" data-aos="fade-up">
+    <h2>Planes de Protección</h2>
+    <div class="plans">
+      <div class="plan" data-aos="zoom-in" data-aos-delay="100">
+        <h3>Plan Básico</h3>
+        <ul>
+          <li>1 cámara IP HD</li>
+          <li>Sensor de puerta/ventana</li>
+          <li>App de monitoreo</li>
+          <li>Soporte 24/7</li>
+        </ul>
+        <button>Contratar</button>
+      </div>
+
+      <div class="plan" data-aos="zoom-in" data-aos-delay="200">
+        <h3>Plan Avanzado</h3>
+        <span class="popular">Más popular</span>
+        <ul>
+          <li>2 cámaras Full HD</li>
+          <li>Sensor de movimiento</li>
+          <li>Botón de pánico</li>
+          <li>Instalación incluida</li>
+        </ul>
+        <button>Contratar</button>
+      </div>
+
+      <div class="plan" data-aos="zoom-in" data-aos-delay="300">
+        <h3>Plan Premium</h3>
+        <ul>
+          <li>4 cámaras visión nocturna</li>
+          <li>Control desde smartphone</li>
+          <li>Respaldo en la nube</li>
+          <li>Alarma con batería</li>
+        </ul>
+        <button>Contratar</button>
+      </div>
+
+      <div class="plan" data-aos="zoom-in" data-aos-delay="400">
+        <h3>Plan Empresarial</h3>
+        <ul>
+          <li>Hasta 8 cámaras HD</li>
+          <li>Zonas de seguridad múltiples</li>
+          <li>Control remoto desde PC o App</li>
+          <li>Respaldo de grabación 15 días</li>
+        </ul>
+        <button>Contratar</button>
+      </div>
+
+      <div class="plan" data-aos="zoom-in" data-aos-delay="500">
+        <h3>Plan Full 360</h3>
+        <ul>
+          <li>Cámaras 360° con AI</li>
+          <li>Sensor humo y CO2</li>
+          <li>Soporte técnico personalizado</li>
+          <li>Control por voz</li>
+        </ul>
+        <button>Contratar</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 Alarma Inteligente Perú. Todos los derechos reservados.
+  </footer>
+
+  <script>
+    AOS.init(); // Iniciar animaciones AOS
+
+    const form = document.getElementById("contactForm");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault(); // Evita el envío real
+
+      // Validación simple
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const mensaje = document.getElementById("mensaje").value.trim();
+
+      if (!nombre || !correo || !mensaje) {
+        alert("Por favor completa todos los campos.");
+        return;
+      }
+
+      if (!/\S+@\S+\.\S+/.test(correo)) {
+        alert("Ingresa un correo válido.");
+        return;
+      }
+
+      // Simula envío exitoso
+      alert("¡Gracias por tu mensaje! Te responderemos pronto.");
+      form.reset();
+    });
+  </script>
+</body>
+</html>
+
