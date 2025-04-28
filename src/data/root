@@ -1,1 +1,17 @@
+Cámaras IP (RTSP) 
+  ↓
+Gateway de Ingesta (Kafka + Redis Streams)
+  ↓
+Procesamiento Tiempo Real (Flink + DeepStream/TensorFlow)
+  ↓
+Almacenamiento:
+  - Videos en MinIO (S3 compatible)
+  - Eventos en TimescaleDB
+  - Indexación en ElasticSearch
+  ↓
+Orquestación (Airflow / Kubernetes)
+  ↓
+Dashboard de Monitoreo (Grafana / Kibana)
+  ↓
+Alertas automáticas (SMS, Email, Push Notifications)
 
