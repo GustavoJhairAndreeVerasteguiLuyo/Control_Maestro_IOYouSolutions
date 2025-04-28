@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alertas de Movimiento - Sistema de Videovigilancia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #motionDetection {
+      padding: 1rem 1.5rem;
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .alerts {
+      color: #856404;
+      font-size: 1rem;
+      padding: 0;
+      list-style-type: none;
+    }
+
+    .alert-item {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background-color: #fff9c4;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+
+  <section id="motionDetection">
+    <h2>Alertas de Movimiento</h2>
+    <ul id="motionAlerts" class="alerts"></ul> <!-- CAMBIADO de <div> a <ul> -->
+  </section>
+
+  <a href="dashboard.html#cameraControl" class="back-btn">← Regresar al Dashboard</a>
+
+  <script>
+    const motionAlerts = [
+      "Movimiento detectado en Cámara 1 - 12:31",
+      "Movimiento detectado en Cámara 3 - 13:04"
+    ];
+
+    const alertContainer = document.getElementById('motionAlerts');
+    const fragment = document.createDocumentFragment();
+
+    motionAlerts.forEach(alert => {
+      const li = document.createElement('li'); // CAMBIADO de <p> a <li>
+      li.classList.add('alert-item');
+      li.textContent = alert;
+      fragment.appendChild(li);
+    });
+
+    alertContainer.appendChild(fragment);
+  </script>
+
+</body>
+</html>
