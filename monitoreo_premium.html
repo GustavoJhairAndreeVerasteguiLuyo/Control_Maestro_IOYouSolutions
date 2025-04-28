@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitoreo de Vigilancia - Data Labeling</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    .camera-container, .labeler-container, .alert-feed {
+      background: white;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    video, img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .label-buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .label-buttons button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .label-buttons button:hover {
+      background: #2563eb;
+    }
+
+    .alert-item {
+      background: #fef9c3;
+      padding: 0.8rem;
+      margin-top: 0.5rem;
+      border-left: 5px solid #facc15;
+      border-radius: 5px;
+      font-size: 0.95rem;
+    }
+
+    /* Sección de eventos */
+    .alert-feed {
+      display: none;
+    }
+
+    .alert-feed.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Monitoreo de Vigilancia</h1>
+
+  <div class="camera-container">
+    <video id="video" autoplay muted playsinline></video>
+    <button id="captureBtn" style="margin-top: 1rem;">Capturar Imagen</button>
+  </div>
+
+  <div class="labeler-container" style="display:none;">
+    <img id="capturedImage" alt="Captura de vigilancia">
+    <div class="label-buttons" id="labelButtons">
+      <!-- Botones para etiquetar evento -->
+      <button data-label="Rostro Detectado">Rostro Detectado</button>
+      <button data-label="Objeto Sospechoso">Objeto Sospechoso</button>
+      <button data-label="Zona Restringida">Zona Restringida</button>
+      <button data-label="Desconocido">Desconocido</button>
+    </div>
+  </div>
+
+  <div class="alert-feed" id="alerts">
+    <h3>Eventos Registrados</h3>
+    <!-- Eventos se agregarán aquí -->
+  </div>
+
+  <script>
+    // Referencias a elementos
+    const video = document.getElementById('video');
+    const captureBtn = document.getElementById('captureBtn');
+    const capturedImage = document.getElementById('capturedImage');
+    const labelerContainer = document.querySelector('.labeler-container');
+    const labelButtons = document.getElementById('labelButtons');
+    const alerts = document.getElementById('alerts');
+
+    let capturedDataUrl = '';
+
+    // Iniciar la cámara
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        alert('No se pudo acceder a la cámara. Por favor, revisa los permisos.');
+        console.error('Error al acceder a la cámara:', error);
+      }
+    }
+
+    // Capturar imagen de video
+    captureBtn.addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      capturedDataUrl = canvas.toDataURL('image/png');
+      capturedImage.src = capturedDataUrl;
+      labelerContainer.style.display = 'block';
+    });
+
+    // Manejo de eventos de etiquetas
+    labelButtons.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') {
+        const label = e.target.getAttribute('data-label');
+        labelEvent(label);
+      }
+    });
+
+    // Etiquetar evento
+    function labelEvent(label) {
+      const timestamp = new Date().toLocaleString();
+      const alertItem = document.createElement('div');
+      alertItem.className = 'alert-item';
+      alertItem.innerHTML = `<strong>${label}</strong> - ${timestamp}`;
+      alerts.prepend(alertItem);
+
+      console.log('Evento etiquetado:', {
+        timestamp,
+        label,
+        image: capturedDataUrl
+      });
+
+      // Opcional: enviar al servidor aquí...
+
+      labelerContainer.style.display = 'none';  // Ocultar interfaz de etiquetado
+      alerts.classList.add('show'); // Mostrar alertas
+    }
+
+    // Iniciar cámara al cargar la página
+    initCamera();
+  </script>
+
+</body>
+</html>
