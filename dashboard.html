@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Videovigilancia</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* Reset básico */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #2563eb;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        header a {
+            color: white;
+            margin-right: 1rem;
+            text-decoration: none;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 1rem;
+            color: #2563eb;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        #logoutBtn {
+            padding: 0.5rem 1rem;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        #logoutBtn i {
+            margin-right: 0.5rem;
+        }
+
+        .camera-list {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .camera-item {
+            background-color: #2563eb;
+            color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            flex: 1 1 120px;
+            text-align: center;
+        }
+
+        #statsContainer {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+
+        #videoHistoryList p {
+            background-color: #e5e7eb;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 1rem;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fde047;
+            color: #333;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .camera-item {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <a href="video.html">Historial</a>
+            <a href="deteccion_movimiento.html">Movimiento</a>
+            <a href="estado_sensores.html">Sensores</a>
+            <a href="registro_incidentes.html">Incidentes</a>
+            <a href="ubicacion_geografica.html">Ubicación</a>
+            <a href="monitoreo_premium.html">Monitoreo Premium</a>
+            <a href="vigilancia_inteligente_premium.html">Vigilancia Inteligente Premium</a>
+        </div>
+        <button id="logoutBtn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+        </button>
+    </header>
+    <main class="container">
+        <h1>Dashboard de Videovigilancia</h1>
+
+        <section id="cameraControl">
+            <h2>Control de Cámaras</h2>
+            <div id="cameraList" class="camera-list"></div>
+        </section>
+
+        <section id="statistics">
+            <h2>Estadísticas</h2>
+            <div id="statsContainer"></div>
+        </section>
+
+        <section id="videoHistory">
+            <h2>Historial de Videos</h2>
+            <div id="videoHistoryList"></div>
+        </section>
+    </main>
+
+    <div id="notification" class="notification" role="alert"></div>
+
+    <button id="actionBtn" class="action-btn" onclick="openActionMenu()">
+        <i class="fas fa-cogs"></i>
+    </button>
+
+    <script>
+        function logout() {
+            window.location.href = 'index.html';
+        }
+
+        const cameras = [
+            { id: 1, name: 'Cámara 1', status: 'activo' },
+            { id: 2, name: 'Cámara 2', status: 'inactiva' },
+            { id: 3, name: 'Cámara 3', status: 'activo' },
+        ];
+
+        function loadCameras() {
+            const cameraList = document.getElementById('cameraList');
+            cameraList.innerHTML = '';
+            cameras.forEach(camera => {
+                const item = document.createElement('div');
+                item.className = 'camera-item';
+                item.style.backgroundColor = camera.status === 'activo' ? '#4CAF50' : '#fbbf24';
+                item.textContent = camera.name;
+                cameraList.appendChild(item);
+            });
+        }
+
+        function loadStatistics() {
+            const container = document.getElementById('statsContainer');
+            container.innerHTML = `<p>3 cámaras activas. 1 evento detectado hoy.</p>`;
+        }
+
+        function loadVideoHistory() {
+            const list = document.getElementById('videoHistoryList');
+            list.innerHTML = `
+                <p>Video grabado 1 - 2025-04-20 14:32</p>
+                <p>Video grabado 2 - 2025-04-20 18:09</p>
+            `;
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        function openActionMenu() {
+            alert('Menú de acciones rápidas');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCameras();
+            loadStatistics();
+            loadVideoHistory();
+            setTimeout(() => {
+                showNotification('Movimiento detectado en la Cámara 1');
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
