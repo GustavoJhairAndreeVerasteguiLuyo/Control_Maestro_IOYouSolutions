@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grabaciones - Videovigilancia</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #2563eb;
+      color: white;
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      flex: 1;
+      width: 100%;
+      max-width: 1000px;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #333;
+      text-align: center;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .video-item {
+      background-color: white;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .video-title {
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Grabaciones de Cámaras</header>
+
+  <div class="container">
+    <h2>Historial de Grabaciones</h2>
+    <div class="video-grid" id="videoGallery">
+      <!-- Grabaciones se cargan aquí dinámicamente -->
+    </div>
+
+    <button onclick="logout()">Cerrar Sesión</button>
+  </div>
+
+  <script>
+    // Simulación de grabaciones almacenadas
+    const recordings = [
+      { title: 'Cámara 1 - 20/04/2025 14:32', src: 'videos/cam1_20250420_1432.mp4' },
+      { title: 'Cámara 2 - 20/04/2025 15:10', src: 'videos/cam2_20250420_1510.mp4' },
+      { title: 'Cámara 3 - 21/04/2025 08:20', src: 'videos/cam3_20250421_0820.mp4' }
+    ];
+
+    function loadRecordings() {
+      const gallery = document.getElementById('videoGallery');
+      recordings.forEach(video => {
+        const item = document.createElement('div');
+        item.className = 'video-item';
+        item.innerHTML = `
+          <video controls>
+            <source src="${video.src}" type="video/mp4">
+            Tu navegador no soporta el video.
+          </video>
+          <div class="video-title">${video.title}</div>
+        `;
+        gallery.appendChild(item);
+      });
+    }
+
+    function logout() {
+      window.location.href = 'index.html';
+    }
+
+    // Inicializar
+    loadRecordings();
+  </script>
+</body>
+</html>
