@@ -2,24 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - Sistema de Videovigilancia</title>
   <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --error-color: #ef4444;
+      --success-color: #22c55e;
+      --bg-color: #f3f4f6;
+      --dark-bg: #1f2937;
+      --dark-text: #f9fafb;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f3f4f6;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      transition: background 0.3s;
     }
 
     .login-container {
-      background: #fff;
+      background: white;
       padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       width: 100%;
       max-width: 400px;
       text-align: center;
@@ -27,124 +38,240 @@
 
     h2 {
       margin-bottom: 1.5rem;
+      color: var(--primary-color);
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 500;
     }
 
     input {
       width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
+      padding: 0.7rem;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      transition: border-color 0.3s;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border 0.3s;
     }
 
     input:focus {
-      border-color: #2563eb;
+      border-color: var(--primary-color);
       outline: none;
     }
 
     button {
       width: 100%;
       padding: 0.75rem;
-      background-color: #2563eb;
+      background-color: var(--primary-color);
       color: white;
       font-weight: bold;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      font-size: 1rem;
       cursor: pointer;
       transition: background-color 0.3s;
     }
 
     button:hover {
-      background-color: #1d4ed8;
+      background-color: var(--primary-hover);
     }
 
     .status {
       margin-top: 1rem;
-      font-weight: bold;
-      color: red;
+      font-weight: 500;
       display: none;
     }
 
-    .loading {
-      font-size: 1.2rem;
-      color: #2563eb;
+    .status.loading {
+      color: var(--primary-color);
     }
 
-    .error {
-      color: red;
+    .status.error {
+      color: var(--error-color);
+    }
+
+    .status.success {
+      color: var(--success-color);
+    }
+
+    /* Botón asistente */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .chatbot-window {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-right: 1px solid #ccc;
+      outline: none;
+    }
+
+    .chat-input button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0 15px;
+      cursor: pointer;
     }
   </style>
 </head>
-
 <body>
+
   <div class="login-container">
     <h2>Acceso al Sistema</h2>
     <form id="loginForm">
-      <input type="text" id="username" placeholder="Usuario" required />
-      <input type="password" id="password" placeholder="Contraseña" required />
+      <div class="input-group">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" placeholder="Ej: admin123" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" placeholder="******" required />
+      </div>
       <button type="submit">Ingresar</button>
       <div id="status" class="status"></div>
     </form>
   </div>
 
+  <!-- Botón flotante de chatbot -->
+  <button class="chatbot-btn" onclick="toggleChat()">💬</button>
+
+  <!-- Ventana del chatbot -->
+  <div class="chatbot-window" id="chatbot">
+    <div class="chat-header">Asistente AI</div>
+    <div class="chat-body" id="chatBody">
+      <p><strong>AI:</strong> Hola, ¿en qué puedo ayudarte?</p>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." />
+      <button onclick="sendMessage()">Enviar</button>
+    </div>
+  </div>
+
   <script>
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
       const statusDiv = document.getElementById("status");
 
-      // Limpia el estado anterior
-      statusDiv.style.display = "none";
-      statusDiv.classList.remove("error");
-      statusDiv.classList.remove("loading");
+      statusDiv.className = "status";
       statusDiv.textContent = "";
+      statusDiv.style.display = "none";
 
-      // Validación simple de campos
-      if (username === "" || password === "") {
-        statusDiv.textContent = "Por favor, completa ambos campos.";
+      if (!username || !password) {
         statusDiv.classList.add("error");
+        statusDiv.textContent = "Por favor, completa todos los campos.";
         statusDiv.style.display = "block";
         return;
       }
 
-      // Indicador de carga
       statusDiv.classList.add("loading");
       statusDiv.textContent = "Verificando credenciales...";
       statusDiv.style.display = "block";
 
       try {
-        const response = await fetch("/script/auth", {
+        const res = await fetch("/script/auth", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password }),
         });
 
-        if (!response.ok) {
-          throw new Error("Usuario o contraseña incorrectos");
-        }
+        if (!res.ok) throw new Error("Credenciales inválidas.");
 
-        const data = await response.json();
-        statusDiv.classList.remove("loading");
-        statusDiv.classList.add("success");
-        statusDiv.style.color = "green";
-        statusDiv.textContent = "Acceso permitido. Redirigiendo...";
-
+        const data = await res.json();
+        statusDiv.className = "status success";
+        statusDiv.textContent = "Acceso exitoso. Redirigiendo...";
         setTimeout(() => {
-          window.location.href = "/dashboard"; // Cambia esto según tu ruta real
-        }, 1000);
+          window.location.href = "/dashboard";
+        }, 1500);
       } catch (err) {
-        statusDiv.classList.remove("loading");
-        statusDiv.classList.add("error");
-        statusDiv.style.color = "red";
+        statusDiv.className = "status error";
         statusDiv.textContent = err.message;
-        statusDiv.style.display = "block";
       }
     });
+
+    function toggleChat() {
+      const chatbot = document.getElementById("chatbot");
+      chatbot.style.display = chatbot.style.display === "flex" ? "none" : "flex";
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const chatBody = document.getElementById("chatBody");
+      const message = input.value.trim();
+      if (message) {
+        const userMsg = document.createElement("p");
+        userMsg.innerHTML = `<strong>Tú:</strong> ${message}`;
+        chatBody.appendChild(userMsg);
+
+        const aiReply = document.createElement("p");
+        aiReply.innerHTML = `<strong>AI:</strong> Estoy pensando...`;
+        chatBody.appendChild(aiReply);
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // Simulación de IA (puedes conectar a Dialogflow o GPT)
+        setTimeout(() => {
+          aiReply.innerHTML = `<strong>AI:</strong> "${message}" suena interesante. ¿Puedes darme más detalles?`;
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }, 1200);
+
+        input.value = "";
+      }
+    }
   </script>
 </body>
 </html>
